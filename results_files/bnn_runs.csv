@@ -1,4 +1,4 @@
-Rand_State,Train_Size,In-Acc,Out-Acc,Run_Time,N_HL,Obj_Func,Learning_Rate,TF_Seed,TL,ObjVal,ObjBound,MIPGap
+Rand_State,Train_Size,In-Acc,Out-Acc,Run_Time,N_HL,Obj_Func,Learning_Rate,TF_Seed,TL,MIPGap,ObjVal,ObjBound
 0,10,1.0,0.0611,0.47128400672227144,0,GD,0.001,66,30
 0,10,1.0,0.103,0.22670405497774482,0,GD,0.001,56,30
 0,10,1.0,0.0812,1.0592833319678903,0,GD,0.001,16,30
