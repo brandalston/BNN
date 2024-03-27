@@ -1,7 +1,8 @@
 import model_runs, dataload, UTILS
 
 n_hidden_layers = [1, 2]
-examples_per_class = [1, 5, 5, 8, 10]
+#examples_per_class = [1, 5, 5, 8, 10]
+examples_per_class = [3,4,6,7,9]
 rand_states = [0, 15, 42, 89, 138]
 time_limit = 30
 learning_rate = [1e-3, 1e-4, 1e-5, 1e-6]
