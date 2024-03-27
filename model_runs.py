@@ -138,15 +138,18 @@ def gd_run(argv):
     seed = 0
     time_limit = 60
     file_out = None
-
+    model = None
+    
     try:
-        opts, args = getopt.getopt(argv, "r:h:t:i:c:s:f:",
+        opts, args = getopt.getopt(argv, "m:r:h:t:i:c:s:f:",
                                    ["learning_rate=", "n_hidden_layers=", "time_limit=", "tf_seed=",
                                     "examples_per_class=", "seed=", "results_file="])
     except getopt.GetoptError:
         sys.exit(2)
     for opt, arg in opts:
-        if opt in ("-r", "--learning_rate"):
+        if opt in ("-m", "--model"):
+            model = arg
+        elif opt in ("-r", "--learning_rate"):
             lr = arg
         elif opt in ("-h", "--n_hidden_layers"):
             n_hidden_layers = arg
@@ -210,7 +213,7 @@ def gd_run(argv):
 
     # Training and testing the net
     from Benchmark import StandardNeuralNet
-    nn = StandardNeuralNet(n_input_neurons, n_hidden_neurons, n_hidden_layers, n_output_neurons, lr, tf_seed)
+    nn = StandardNeuralNet(model, n_input_neurons, n_hidden_neurons, n_hidden_layers, n_output_neurons, lr, tf_seed)
     print('Run Start: ' + str(time.strftime("%I:%M:%S %p", time.localtime())))
     start = time.perf_counter()
     is_sat = nn.train(train_data, train_labels, train_data, train_labels, time_limit)
@@ -235,7 +238,7 @@ def gd_run(argv):
     results["test_acc"] = test_performance
     results["run_time"] = run_time
     results['n_hidden_layers'] = n_hidden_layers
-    results["obj_func"] = 'GD'
+    results["obj_func"] = model
     results["learning_rate"] = lr
     results["tf_seed"] = tf_seed
     results['TL'] = time_limit
