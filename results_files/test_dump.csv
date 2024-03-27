@@ -224,3 +224,7 @@ Rand_State,Train_Size,In-Acc,Out-Acc,Run_Time,N_HL,Obj_Func,Learning_Rate,TF_See
 0,50,N/A,N/A,N/A,1,"['bias-indicator', 'margin-indicator']",N/A,N/A,60
 0,80,N/A,N/A,N/A,1,"['bias-indicator', 'margin-indicator']",N/A,N/A,60
 0,100,N/A,N/A,N/A,1,"['bias-indicator', 'margin-indicator']",N/A,N/A,60
+0,20,1.0,0.1088,0.28356525000000055,0,GD,0.001,42,2
+0,20,1.0,0.1088,0.23397995900000002,0,GD-binary,0.001,42,2
+0,20,1.0,0.0863,0.26354862499999987,0,GD-binary,0.001,42,2
+0,20,1.0,0.1088,0.2789243749999999,0,GD-ternary,0.001,42,2

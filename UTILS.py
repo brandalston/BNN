@@ -138,7 +138,8 @@ def model_acc(net, weights, biases, images, labels):
 
 
 def model_summary(results_dict, file_out=None):
-    if results_dict['obj_func'] != 'GD':
+    print()
+    if 'GD' not in results_dict['obj_func']:
         with open(file_out, mode='a') as results:
             results_writer = csv.writer(results, delimiter=',', quotechar='"')
             results_writer.writerow([

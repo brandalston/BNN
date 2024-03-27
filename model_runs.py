@@ -212,12 +212,13 @@ def gd_run(argv):
     train_labels = UTILS.get_one_hot_encoding(train_labels)
 
     # Training and testing the net
-    from Benchmark import StandardNeuralNet
-    if model == 'binary':
+    from Benchmarks.ICARTE import StandardNeuralNet
+    if 'binary' in model:
         nn = StandardNeuralNet(n_input_neurons, n_hidden_neurons, n_hidden_layers, n_output_neurons, lr, tf_seed, False)
-    if model == 'ternary':
+    else:
         nn = StandardNeuralNet(n_input_neurons, n_hidden_neurons, n_hidden_layers, n_output_neurons, lr, tf_seed, True)
     print('Run Start: ' + str(time.strftime("%I:%M:%S %p", time.localtime())))
+
     start = time.perf_counter()
     is_sat = nn.train(train_data, train_labels, train_data, train_labels, time_limit)
     run_time = (time.perf_counter() - start)

@@ -16,10 +16,10 @@ time_limit = 60
 learning_rate = [1e-3,1e-4,1e-5,1e-6]
 tf_seed = [66,56,16]
 
-# model_runs.gd_run(["-h", 0, "-s", f's_{0}', "-r", 1e-3, "-c", 2, "-t", 2, "-i", 42, "-f", 'test_dump.csv'])
+model_runs.gd_run(["-m", 'GD-ternary', "-h", 0, "-s", f's_{0}', "-r", 1e-3, "-c", 2, "-t", 2, "-i", 42, "-f", 'test_dump.csv'])
 # model_runs.mip_run(["-o", 'margin-indicator', "-h", 0, "-c", 5, "-t", 10, "-s", f's_{138}', "-e", 0.0001, "-z", 1, "-f", 'test_dump.csv'])
 
-# MIP
+"""# MIP
 obj_func = ['bias-indicator', 'margin-indicator']#, 'bias', 'margin']
 model_eps = 0.001
 for obj in ['bias-indicator','margin-indicator']:
@@ -34,6 +34,6 @@ for obj in ['bias-indicator','margin-indicator']:
                     with open('results_files/test_dump.csv', mode='a') as results:
                         results_writer = csv.writer(results, delimiter=',', quotechar='"')
                         results_writer.writerow([
-                            0, 10*ec, 'N/A', 'N/A', 'N/A', nhl, obj_func,
+                            0, 10*ec, 'N/A', 'N/A', 'N/A', nhl, obj,
                             'N/A', 'N/A', time_limit, 'N/A', 'N/A', 'N/A'])
-                        results.close()
+                        results.close()"""
