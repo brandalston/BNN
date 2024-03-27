@@ -142,8 +142,8 @@ def gd_run(argv):
     
     try:
         opts, args = getopt.getopt(argv, "m:r:h:t:i:c:s:f:",
-                                   ["learning_rate=", "n_hidden_layers=", "time_limit=", "tf_seed=",
-                                    "examples_per_class=", "seed=", "results_file="])
+                                   ["model=", "learning_rate=", "n_hidden_layers=", "time_limit=", 
+                                    "tf_seed=", "examples_per_class=", "seed=", "results_file="])
     except getopt.GetoptError:
         sys.exit(2)
     for opt, arg in opts:
