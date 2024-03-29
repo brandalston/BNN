@@ -46,13 +46,8 @@ if __name__ == '__main__':
   print_str = "Architecture: %s. N: %s. Loss: %s. Bound: %s"
   clear_print(print_str % ("-".join([str(x) for x in architecture]), N, loss, bound))
 
-  if loss == "gd_nn":
-    lr = 1e-3
-    nn = GD_NN(data, N, architecture, lr, bound, seed)
-    nn.train(60*train_time)
-  else:
-    nn = get_nn(loss, data, architecture, bound, reg, fair)
-    nn.train(train_time*60, focus)
+  nn = get_nn(loss, data, architecture, bound, reg, fair)
+  nn.train(train_time*60, focus)
 
   obj = nn.get_objective()
   print("Objective value: ", obj)
@@ -67,7 +62,7 @@ if __name__ == '__main__':
   print("Validation accuracy: %s " % (val_acc))
   print("Testing accuracy: %s " % (test_acc))
 
-
+  """
   w1 = varMatrices['w_1']
   b1 = varMatrices['b_1']
   if len(architecture) > 2:
@@ -147,3 +142,4 @@ if __name__ == '__main__':
     print("NN p10: %.3f" % (nn.male_pred1.getValue()))
 
   set_trace()
+  """
