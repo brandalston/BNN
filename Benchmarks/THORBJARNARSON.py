@@ -1,7 +1,7 @@
-from mip.get_nn import get_nn
-from helper.misc import inference, infer_and_accuracy, clear_print, get_network_size,strip_network
-from helper.data import load_data, get_architecture
-from helper.fairness import equalized_odds, demographic_parity
+from Thorbjarnarson.mip.get_nn import get_nn
+from Thorbjarnarson.helper.misc import inference, infer_and_accuracy, clear_print, get_network_size,strip_network
+from Thorbjarnarson.helper.data import load_data, get_architecture
+from Thorbjarnarson.helper.fairness import equalized_odds, demographic_parity
 import argparse
 import numpy as np
 from pdb import set_trace

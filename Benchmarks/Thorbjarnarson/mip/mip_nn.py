@@ -265,6 +265,12 @@ class MIP_NN:
   def get_runtime(self):
     return self.m.Runtime
 
+  def get_gap(self):
+    return self.m.MIPGap
+
+  def get_bound(self):
+    return self.m.ObjBound
+
   def get_data(self):
     data = {
       'obj': self.m.ObjVal,

@@ -3,6 +3,10 @@ import time, os, argparse, getopt, sys, math, csv, warnings
 warnings.filterwarnings("ignore")
 import UTILS, dataload
 import numpy as np
+from Benchmarks.Thorbjarnarson.mip.get_nn import get_nn
+from Benchmarks.Thorbjarnarson.helper.misc import inference, infer_and_accuracy, clear_print, get_network_size,strip_network
+from Benchmarks.Thorbjarnarson.helper.data import load_data, get_architecture
+from Benchmarks.Thorbjarnarson.helper.fairness import equalized_odds, demographic_parity
 
 example_skip_dict = {'s_138': 4, 's_15': 3, 's_89': 2, 's_42': 1, 's_0': 0}
 
@@ -254,3 +258,86 @@ def gd_run(argv):
     # close the network session
     nn.close()
     print("-----------------------------\n")
+
+
+def thor_run(argv):
+    # print(argv)
+    obj_func = None
+    n_hidden_layers = 0
+    examples_per_class = 1
+    seed = 's_0'
+    time_limit = 60
+    model_eps = 0.001
+    consol_log = 0
+    file_out = None
+
+    try:
+        opts, args = getopt.getopt(argv, "o:h:c:t:s:e:z:f:",
+                                   ["obj_func=", "n_hidden_layers=", "examples_per_class=", "time_limit=",
+                                    "seed=", "model_eps=", "consol_log=", "results_file="])
+    except getopt.GetoptError:
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt in ("-o", "--obj_func"):
+            obj_func = arg
+        elif opt in ("-h", "--n_hidden_layers"):
+            n_hidden_layers = arg
+        elif opt in ("-c", "--examples_per_class"):
+            examples_per_class = arg
+        elif opt in ("-t", "--time_limit"):
+            time_limit = int(arg)
+        elif opt in ("-s", "--seed"):
+            seed = arg
+        elif opt in ("-z", "--consol_log"):
+            consol_log = arg
+        elif opt in ("-f", "--results_file"):
+            file_out = arg
+
+    hls = [int(x) for x in args.hls.split("-") if len(args.hls) > 0]
+    N = examples_per_class
+    focus = args.focus
+    train_time = time_limit
+    seed = seed
+    loss = obj_func[5:]
+    data_name = "mnist"
+    bound = 1
+    reg = False
+    fair = False
+
+    data = load_data(data_name, N, seed)
+
+    architecture = get_architecture(data, hls)
+    # print("architecture", architecture)
+
+    clear_print("Architecture: %s. N: %s. Loss: %s. Bound: %s"
+                % ("-".join([str(x) for x in architecture]), N, loss, bound))
+
+    nn = get_nn(loss, data, architecture, bound, reg, fair)
+    nn.train(train_time * 60, focus)
+
+    print("Obj value: ",  nn.get_objective())
+    print("Obj bound: ", nn.get_bound())
+    print("Gap:", nn.get_gap())
+
+    varMatrices = nn.extract_values()
+
+    train_acc = infer_and_accuracy(nn.data['train_x'], nn.data["train_y"], varMatrices, nn.architecture)
+    val_acc = infer_and_accuracy(nn.data['val_x'], nn.data["val_y"], varMatrices, nn.architecture)
+    test_acc = infer_and_accuracy(nn.data['test_x'], nn.data["test_y"], varMatrices, nn.architecture)
+
+    print("Training accuracy: %s " % (train_acc))
+    print("Validation accuracy: %s " % (val_acc))
+    print("Testing accuracy: %s " % (test_acc))
+
+    parser.add_argument('--hls', default='16', type=str)
+    parser.add_argument('--ex', default=10, type=int)
+    parser.add_argument('--focus', default=0, type=int)
+    parser.add_argument('--time', default=1, type=float)
+    parser.add_argument('--seed', default=0, type=int)
+    parser.add_argument('--loss', default="min_w", type=str)
+    parser.add_argument('--data', default="mnist", type=str)
+    parser.add_argument('--bound', default=1, type=int)
+    parser.add_argument('--fair', default="", type=str)
+    parser.add_argument('--reg', default=0, type=float)
+    parser.add_argument('--save', action='store_true', help="An optional flag to save data")
+    args = parser.parse_args()
