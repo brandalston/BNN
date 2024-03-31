@@ -244,12 +244,13 @@ class MIP_NN:
     else:
       self.m.setObjective(self.obj, GRB.MAXIMIZE)
     
-  def train(self, time=None, focus=None):
+  def train(self, time=None, focus=None, consol_log=0):
     if time:
       self.m.setParam('TimeLimit', time)
     if focus:
       self.m.setParam('MIPFocus', focus)
-    #self.m.setParam('Threads', 1)
+    self.m.Params.LogToConsole = consol_log
+    self.m.setParam('Threads', 1)
     self.m._lastobjbst = GRB.INFINITY
     self.m._lastobjbnd = -GRB.INFINITY
     self.m._progress = []

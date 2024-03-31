@@ -100,7 +100,7 @@ def mip_run(argv):
     labels = 2.0 * UTILS.get_one_hot_encoding(labels) - 1.0  # mapping labels to -1/1 vectors
 
     # Training the network
-    BNN_model = MIPBNN(net, images, obj_func='margin')
+    BNN_model = MIPBNN(net, images, obj_func=obj_func)
     for i in range(n_train):
         BNN_model.add_example(images[i], labels[i], model_eps, show=False)
     print('Run Start: ' + str(time.strftime("%I:%M:%S %p", time.localtime())))
@@ -265,10 +265,10 @@ def thor_run(argv):
     obj_func = None
     n_hidden_layers = 0
     examples_per_class = 1
-    seed = 's_0'
+    seed = 0
     time_limit = 60
-    model_eps = 0.001
     consol_log = 0
+    bound = 1
     file_out = None
 
     try:
@@ -284,6 +284,8 @@ def thor_run(argv):
             n_hidden_layers = arg
         elif opt in ("-c", "--examples_per_class"):
             examples_per_class = arg
+        elif opt in ("-b", "--bound"):
+            bound = arg
         elif opt in ("-t", "--time_limit"):
             time_limit = int(arg)
         elif opt in ("-s", "--seed"):
@@ -292,28 +294,41 @@ def thor_run(argv):
             consol_log = arg
         elif opt in ("-f", "--results_file"):
             file_out = arg
+    ''' Columns of the results file generated '''
+    summary_columns = ['Train_Size', 'Rand_State', 'In-Acc', 'Out-Acc', 'Run_Time',
+                       'Num_HL', 'Obj_Func', 'TL', 'Learning_Rate', 'TF_Seed']
+    output_path = os.getcwd() + '/results_files/'
+    log_path = os.getcwd() + '/log_files/'
+    if file_out is None:
+        output_name = 'Seed:' + str(seed) + '_HL:' + str(n_hidden_layers) + '_Obj:' + str(obj_func) + \
+                      'EC:' + str(examples_per_class) + '_TL:' + str(time_limit) + '.csv'
+    else:
+        output_name = file_out
+    out_file = output_path + output_name
+    if file_out is None:
+        with open(out_file, 'w') as f:
+            writer = csv.writer(f)
+            writer.writerow(summary_columns)
+            f.close()
 
-    hls = [int(x) for x in args.hls.split("-") if len(args.hls) > 0]
     N = examples_per_class
-    focus = args.focus
+    focus = 2
     train_time = time_limit
-    seed = seed
     loss = obj_func[5:]
-    data_name = "mnist"
-    bound = 1
     reg = False
     fair = False
 
-    data = load_data(data_name, N, seed)
+    data = load_data("mnist", N, seed)
 
+    hls = [16]*n_hidden_layers if n_hidden_layers > 0 else []
     architecture = get_architecture(data, hls)
     # print("architecture", architecture)
-
-    clear_print("Architecture: %s. N: %s. Loss: %s. Bound: %s"
-                % ("-".join([str(x) for x in architecture]), N, loss, bound))
+    # clear_print("Architecture: %s. N: %s. Loss: %s. Bound: %s" % ("-".join([str(x) for x in architecture]), N, loss, bound))
 
     nn = get_nn(loss, data, architecture, bound, reg, fair)
-    nn.train(train_time * 60, focus)
+    print('Run Start: ' + str(time.strftime("%I:%M:%S %p", time.localtime())))
+    nn.train(train_time * 60, focus, consol_log=consol_log)
+    print("-----------------------------")
 
     print("Obj value: ",  nn.get_objective())
     print("Obj bound: ", nn.get_bound())
@@ -322,22 +337,30 @@ def thor_run(argv):
     varMatrices = nn.extract_values()
 
     train_acc = infer_and_accuracy(nn.data['train_x'], nn.data["train_y"], varMatrices, nn.architecture)
-    val_acc = infer_and_accuracy(nn.data['val_x'], nn.data["val_y"], varMatrices, nn.architecture)
+    # val_acc = infer_and_accuracy(nn.data['val_x'], nn.data["val_y"], varMatrices, nn.architecture)
     test_acc = infer_and_accuracy(nn.data['test_x'], nn.data["test_y"], varMatrices, nn.architecture)
 
-    print("Training accuracy: %s " % (train_acc))
-    print("Validation accuracy: %s " % (val_acc))
-    print("Testing accuracy: %s " % (test_acc))
+    print("Run time = %0.2f" % nn.m.RunTime)
+    print("Test performance = %0.3f" % test_acc)
+    print("Train performance = %0.3f" % train_acc)
 
-    parser.add_argument('--hls', default='16', type=str)
-    parser.add_argument('--ex', default=10, type=int)
-    parser.add_argument('--focus', default=0, type=int)
-    parser.add_argument('--time', default=1, type=float)
-    parser.add_argument('--seed', default=0, type=int)
-    parser.add_argument('--loss', default="min_w", type=str)
-    parser.add_argument('--data', default="mnist", type=str)
-    parser.add_argument('--bound', default=1, type=int)
-    parser.add_argument('--fair', default="", type=str)
-    parser.add_argument('--reg', default=0, type=float)
-    parser.add_argument('--save', action='store_true', help="An optional flag to save data")
-    args = parser.parse_args()
+    results = {}
+    results['rand_state'] = seed
+    results['train_size'] = 10 * examples_per_class
+    results["train_acc"] = train_acc
+    results["test_acc"] = test_acc
+    results["run_time"] = nn.m.RunTime
+    results['n_hidden_layers'] = n_hidden_layers
+    results["obj_func"] = obj_func
+    results['MIPGap'] = nn.get_gap()
+    results['ObjBound'] = nn.get_bound()
+    results['ObjVal'] = nn.get_objective()
+    results["learning_rate"] = 'N/A'
+    results["tf_seed"] = 'N/A'
+    results['TL'] = time_limit
+    results["is_sat"] = (train_acc == 1.0)
+    # results["weights"] = [w.tolist() for w in weights]
+    # results["biases"] = [b.tolist() for b in biases]
+    UTILS.model_summary(results, out_file)
+
+

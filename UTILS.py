@@ -131,14 +131,13 @@ def model_acc(net, weights, biases, images, labels):
     test_performance = bnn.test_network(images, labels)
     # print("Test performance = %0.2f"%test_performance)
 
-    # clossing the network sessions
+    # closing the network sessions
     bnn.close()
 
     return train_performance, test_performance
 
 
 def model_summary(results_dict, file_out=None):
-    print()
     if 'GD' not in results_dict['obj_func']:
         with open(file_out, mode='a') as results:
             results_writer = csv.writer(results, delimiter=',', quotechar='"')
