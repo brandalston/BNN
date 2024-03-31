@@ -81,8 +81,9 @@ def mip_run(argv):
         - model_eps:
             - Epsilon value used for max margin model
     """
-
-    clear_print("Obj: %s. Hidden Layers: %s. N: %s. Seed: %s." % obj_func, n_hidden_layers, 10*examples_per_class, seed)
+    print("====================================")
+    print(f"Obj: {obj_func}. Hidden Layers: {n_hidden_layers}. N: {10*examples_per_class}. Seed:", seed.replace("s_",""),".")
+    print("====================================")
     # Configuration
     n_hidden_neurons = 16  # number of neurons per hidden layer
     n_threads = 1  # number of threads
@@ -108,20 +109,23 @@ def mip_run(argv):
     # Testing the solution
     if results['found_sol']:
         weights, biases = BNN_model.get_weights()
-        # Show standard performance
         train_performance, test_performance = UTILS.model_acc(net, weights, biases, images, labels)
         results["rand_state"] = seed.replace("s_","")
         results["train_size"] = 10 * examples_per_class
         results["train_acc"] = train_performance
         results["test_acc"] = test_performance
         results["n_hidden_layers"] = n_hidden_layers
-        results["obj_func"] = "GD-"+obj_func
+        results["obj_func"] = obj_func
         results['TL'] = time_limit
+        results["weights"] = [w.tolist() for w in weights]
+        results["biases"] = [b.tolist() for b in biases]
+
+        print("Obj value: ", BNN_model.m.ObjVal)
+        print("Obj bound: ", BNN_model.m.ObjBound)
+        print("Gap:", BNN_model.m.MIPGap)
         print("Run time = %0.2f" % BNN_model.m.RunTime)
         print("Test performance = %0.3f" % test_performance)
         print("Train performance = %0.3f" % train_performance)
-        results["weights"] = [w.tolist() for w in weights]
-        results["biases"] = [b.tolist() for b in biases]
     else:
         print("TIMEOUT or INFEASIBLE!")
 
@@ -197,10 +201,10 @@ def gd_run(argv):
             - Fixed to zero
     """
 
-    print("n_hidden_layers:", n_hidden_layers)
-    print("rand_state:", example_skip_dict[seed])
-    print("train size:", 10*examples_per_class)
-    print("Obj Func: GD  ;  Learning rate:", lr, " ;  TF seed:", tf_seed)
+    print("====================================")
+    print(f"Obj: GD-{model}. Hidden Layers: {n_hidden_layers}. N: {10 * examples_per_class}. Seed:",
+          seed.replace("s_", ""), f". TF_Seed: {tf_seed}. LR: {lr}")
+    print("====================================")
 
     # Setting the network's architecture
     n_input_neurons = 28 * 28
@@ -214,12 +218,11 @@ def gd_run(argv):
 
     # Training and testing the net
     from Benchmarks.ICARTE import StandardNeuralNet
-    if 'binary' in model:
+    if 'binary' == model:
         nn = StandardNeuralNet(n_input_neurons, n_hidden_neurons, n_hidden_layers, n_output_neurons, lr, tf_seed, False)
     else:
         nn = StandardNeuralNet(n_input_neurons, n_hidden_neurons, n_hidden_layers, n_output_neurons, lr, tf_seed, True)
     print('Run Start: ' + str(time.strftime("%I:%M:%S %p", time.localtime())))
-
     start = time.perf_counter()
     is_sat = nn.train(train_data, train_labels, train_data, train_labels, time_limit)
     run_time = (time.perf_counter() - start)
@@ -232,8 +235,9 @@ def gd_run(argv):
     train_performance, test_performance = UTILS.model_acc(net, weights, biases, train_data, 2 * train_labels - 1)
     print("-----------------------------")
     print("Run time = %0.3f" % run_time)
-    print("Train performance = %0.3f" % train_performance)
-    print("Test performance = %0.3f" % test_performance)
+    print("Train acc = %0.3f" % train_performance)
+    print("Test acc = %0.3f" % test_performance)
+    print("-----------------------------\n")
 
     # saving results
     results = {}
@@ -243,7 +247,7 @@ def gd_run(argv):
     results["test_acc"] = test_performance
     results["run_time"] = run_time
     results['n_hidden_layers'] = n_hidden_layers
-    results["obj_func"] = model
+    results["obj_func"] = "GD-"+model
     results["learning_rate"] = lr
     results["tf_seed"] = tf_seed
     results['TL'] = time_limit
@@ -254,7 +258,6 @@ def gd_run(argv):
 
     # close the network session
     nn.close()
-    print("-----------------------------\n")
 
 
 def thor_run(argv):
@@ -320,7 +323,9 @@ def thor_run(argv):
     hls = [16]*n_hidden_layers if n_hidden_layers > 0 else []
     architecture = get_architecture(data, hls)
     # print("architecture", architecture)
-    clear_print("Architecture: %s. N: %s. Loss: %s. Bound: %s" % ("-".join([str(x) for x in architecture]), N, loss, bound))
+    print("====================================")
+    print(f"Obj: {loss}. Hidden Layers: {n_hidden_layers}. N: {10*examples_per_class}. Bound: {bound}. Seed: {seed}.")
+    print("====================================")
     nn = get_nn(loss, data, architecture, bound, reg, fair)
     print('Run Start: ' + str(time.strftime("%I:%M:%S %p", time.localtime())))
     nn.train(train_time * 60, focus, consol_log=consol_log)
