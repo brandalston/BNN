@@ -15,6 +15,6 @@ tf_seed = [66, 56, 16]
 # MIP
 obj_func = ['bias-indicator', 'margin-indicator', 'bias', 'margin']
 model_eps = 0.001
-for ec in examples_per_class:
+for ec in [1,2,3,4,5,6,7,8,9,10]:
     model_runs.mip_run(["-o", 'bias-indicator', "-h", 0, "-c", ec, "-t", time_limit,
                         "-s", f's_{138}', "-e", 0.001, "-z", 0, "-f", 'bnn_runs.csv'])

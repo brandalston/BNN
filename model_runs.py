@@ -1,12 +1,11 @@
-from BNN import MIPBNN
 import time, os, argparse, getopt, sys, math, csv, warnings
-warnings.filterwarnings("ignore")
-import UTILS, dataload
 import numpy as np
+warnings.filterwarnings("ignore")
+from BNN import MIPBNN
+import UTILS, dataload
 from Benchmarks.Thorbjarnarson.mip.get_nn import get_nn
-from Benchmarks.Thorbjarnarson.helper.misc import inference, infer_and_accuracy, clear_print, get_network_size,strip_network
+from Benchmarks.Thorbjarnarson.helper.misc import infer_and_accuracy
 from Benchmarks.Thorbjarnarson.helper.data import load_data, get_architecture
-from Benchmarks.Thorbjarnarson.helper.fairness import equalized_odds, demographic_parity
 
 example_skip_dict = {'s_138': 4, 's_15': 3, 's_89': 2, 's_42': 1, 's_0': 0}
 
