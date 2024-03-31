@@ -6,7 +6,7 @@ seed = 0
 
 def infer_and_accuracy(set_x, set_y, varMatrices, architecture):
   inferred = inference(set_x, varMatrices, architecture)
-  accuracy = calc_accuracy(inferred, set_y)
+  accuracy = calc_accuracy(inferred, set_y)/100
   return accuracy
 
 def numpy_sign(varMatrix):

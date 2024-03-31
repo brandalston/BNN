@@ -81,11 +81,8 @@ def mip_run(argv):
         - model_eps:
             - Epsilon value used for max margin model
     """
-    print("n_hidden_layers:", n_hidden_layers)
-    print("rand_state:", seed.replace('s_',""))
-    print("train size:", 10*examples_per_class)
-    print("Obj Func:", obj_func)
 
+    clear_print("Obj: %s. Hidden Layers: %s. N: %s. Seed: %s." % obj_func, n_hidden_layers, 10*examples_per_class, seed)
     # Configuration
     n_hidden_neurons = 16  # number of neurons per hidden layer
     n_threads = 1  # number of threads
@@ -118,7 +115,7 @@ def mip_run(argv):
         results["train_acc"] = train_performance
         results["test_acc"] = test_performance
         results["n_hidden_layers"] = n_hidden_layers
-        results["obj_func"] = obj_func
+        results["obj_func"] = "GD-"+obj_func
         results['TL'] = time_limit
         print("Run time = %0.2f" % BNN_model.m.RunTime)
         print("Test performance = %0.3f" % test_performance)
@@ -272,9 +269,9 @@ def thor_run(argv):
     file_out = None
 
     try:
-        opts, args = getopt.getopt(argv, "o:h:c:t:s:e:z:f:",
+        opts, args = getopt.getopt(argv, "o:h:c:t:s:b:z:f:",
                                    ["obj_func=", "n_hidden_layers=", "examples_per_class=", "time_limit=",
-                                    "seed=", "model_eps=", "consol_log=", "results_file="])
+                                    "seed=", "bound=", "consol_log=", "results_file="])
     except getopt.GetoptError:
         sys.exit(2)
     for opt, arg in opts:
@@ -284,12 +281,12 @@ def thor_run(argv):
             n_hidden_layers = arg
         elif opt in ("-c", "--examples_per_class"):
             examples_per_class = arg
-        elif opt in ("-b", "--bound"):
-            bound = arg
         elif opt in ("-t", "--time_limit"):
             time_limit = int(arg)
         elif opt in ("-s", "--seed"):
             seed = arg
+        elif opt in ("-b", "--bound"):
+            bound = arg
         elif opt in ("-z", "--consol_log"):
             consol_log = arg
         elif opt in ("-f", "--results_file"):
@@ -314,7 +311,7 @@ def thor_run(argv):
     N = examples_per_class
     focus = 2
     train_time = time_limit
-    loss = obj_func[5:]
+    loss = obj_func
     reg = False
     fair = False
 
@@ -323,8 +320,7 @@ def thor_run(argv):
     hls = [16]*n_hidden_layers if n_hidden_layers > 0 else []
     architecture = get_architecture(data, hls)
     # print("architecture", architecture)
-    # clear_print("Architecture: %s. N: %s. Loss: %s. Bound: %s" % ("-".join([str(x) for x in architecture]), N, loss, bound))
-
+    clear_print("Architecture: %s. N: %s. Loss: %s. Bound: %s" % ("-".join([str(x) for x in architecture]), N, loss, bound))
     nn = get_nn(loss, data, architecture, bound, reg, fair)
     print('Run Start: ' + str(time.strftime("%I:%M:%S %p", time.localtime())))
     nn.train(train_time * 60, focus, consol_log=consol_log)
@@ -341,8 +337,8 @@ def thor_run(argv):
     test_acc = infer_and_accuracy(nn.data['test_x'], nn.data["test_y"], varMatrices, nn.architecture)
 
     print("Run time = %0.2f" % nn.m.RunTime)
-    print("Test performance = %0.3f" % test_acc)
-    print("Train performance = %0.3f" % train_acc)
+    print("Test acc = %0.3f" % test_acc)
+    print("Train acc = %0.3f" % train_acc)
 
     results = {}
     results['rand_state'] = seed
@@ -351,7 +347,7 @@ def thor_run(argv):
     results["test_acc"] = test_acc
     results["run_time"] = nn.m.RunTime
     results['n_hidden_layers'] = n_hidden_layers
-    results["obj_func"] = obj_func
+    results["obj_func"] = "THOR-"+obj_func
     results['MIPGap'] = nn.get_gap()
     results['ObjBound'] = nn.get_bound()
     results['ObjVal'] = nn.get_objective()
@@ -362,5 +358,4 @@ def thor_run(argv):
     # results["weights"] = [w.tolist() for w in weights]
     # results["biases"] = [b.tolist() for b in biases]
     UTILS.model_summary(results, out_file)
-
-
+    print("-----------------------------\n")

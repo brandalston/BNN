@@ -17,9 +17,10 @@ learning_rate = [1e-3,1e-4,1e-5,1e-6]
 tf_seed = [66,56,16]
 if n_hidden_layers[0] > 0:
     print(tf_seed+[16]*n_hidden_layers[0]+examples_per_class)
-model_runs.gd_run(["-m", 'GD-ternary', "-h", 0, "-s", f's_{0}', "-r", 1e-3, "-c", 2, "-t", 2, "-i", 42, "-f", 'test_dump.csv'])
+# model_runs.gd_run(["-m", 'ternary', "-h", 0, "-s", f's_{0}', "-r", 1e-3, "-c", 2, "-t", 2, "-i", 42, "-f", 'test_dump.csv'])
 # model_runs.mip_run(["-o", 'margin-indicator', "-h", 0, "-c", 5, "-t", 10, "-s", f's_{138}', "-e", 0.0001, "-z", 1, "-f", 'test_dump.csv'])
-model_runs.thor_run()
+obj = ['sat_margin','min_hinge','max_correct','min_w','max_m']
+model_runs.thor_run(["-o", "min_w", "-h", 1, "-c", 1, "-b", 1, "-t", 5, "-s", 0, "-f", 'test_dump.csv', "-z", 1])
 """# MIP
 obj_func = ['bias-indicator', 'margin-indicator']#, 'bias', 'margin']
 model_eps = 0.001
