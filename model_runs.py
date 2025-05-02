@@ -134,6 +134,21 @@ def mip_run(argv):
 
 
 def gd_run(argv):
+    """
+    Run an experiment using a gradient descent approach using ternary weights (-1,0,1).
+    @params
+        - lr: Learning rate
+        - tf_seed: Random seed used to initialize the weights of the network
+        - n_hidden_layers: # of hidden layers
+            - Fixed to 16
+        - examples_per_class: Min # number of examples per class during training
+        - time_limit:
+            - Time limit in minutes
+        - examples_skip:
+            - Used to construct different instance problems of the same size (without overlap)
+            - We skip examples_skip*examples_per_class examples when creating the training set
+            - Fixed to zero
+    """
     # print(argv)
     lr = 1e-3
     tf_seed = 0
@@ -184,21 +199,7 @@ def gd_run(argv):
             writer = csv.writer(f)
             writer.writerow(summary_columns)
             f.close()
-    """
-    Run an experiment using a gradient descent approach using ternary weights (-1,0,1).
-    @params
-        - lr: Learning rate
-        - tf_seed: Random seed used to initialize the weights of the network
-        - n_hidden_layers: # of hidden layers
-            - Fixed to 16
-        - examples_per_class: Min # number of examples per class during training
-        - time_limit:
-            - Time limit in minutes
-        - examples_skip:
-            - Used to construct different instance problems of the same size (without overlap)
-            - We skip examples_skip*examples_per_class examples when creating the training set
-            - Fixed to zero
-    """
+    
 
     print("====================================")
     print(f"Obj: GD-{model}. Hidden Layers: {n_hidden_layers}. N: {10 * examples_per_class}. Seed:",
